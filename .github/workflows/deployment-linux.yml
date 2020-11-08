@@ -1,0 +1,44 @@
+name: Deployment Linux
+
+on:
+  push:
+    tags:
+      - v*
+      - l*
+
+jobs:
+  release-linux:
+    env:
+      REPOSITORY_NAME: SanityController
+      BUILD_DIRECTORY: ninja-build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        submodules: recursive
+
+    - name: Install Ninja
+      uses: seanmiddleditch/gha-setup-ninja@master
+
+    - name: Install Dependency Packages
+      run: |
+        sudo apt-get install -y libgtk-3-dev libxinerama-dev libxrandr-dev libxcursor-dev mesa-common-dev libasound2-dev freeglut3-dev libxcomposite-dev libcurl4-openssl-dev
+
+    - name: Build
+      run: |
+        cmake -B ${BUILD_DIRECTORY} -G Ninja -DCMAKE_BUILD_TYPE=Release
+        ninja -C ${BUILD_DIRECTORY} ${REPOSITORY_NAME}_All -j 4
+
+    - name: Packaging
+      run: |
+        chmod 755 bin/packaging.sh
+        ./bin/packaging.sh linux "${BUILD_DIRECTORY}/${REPOSITORY_NAME}_artefacts/Release" "${REPOSITORY_NAME}"
+
+    - name: Release
+      uses: softprops/action-gh-release@master
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: pkg/*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
