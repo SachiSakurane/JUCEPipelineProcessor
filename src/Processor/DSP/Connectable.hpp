@@ -1,11 +1,17 @@
 //
-// Created by SachiP on 2020/11/09.
+// Created by Himatya on 2020/11/09.
 //
 
 #pragma once
 
-template <class ProcessorType>
-concept Connectable = requires (ProcessorType& processor) {
-    typename ProcessorType::ArgType;
-    processor.process(std::declval<typename ProcessorType::ArgType>());
+#include <utility>
+
+template <class ConnectableType, class... Args>
+concept ArgsConnectable = requires (ConnectableType &connectable) {
+    connectable.process(std::declval<Args>()...);
+};
+
+template <class ConnectionType, class ProcessableType>
+concept ProcessConnectable = requires (ConnectionType& connectable, ProcessableType& processable) {
+    connectable.process(processable.process());
 };

@@ -10,11 +10,9 @@ class ProcessBlockOutput {
 public:
     explicit ProcessBlockOutput(juce::AudioBuffer<float>& buffer) : audioBuffer {buffer} {}
 
-    using ArgType = std::weak_ptr<const MultiBuffer<float>>;
-    using ReturnType = void;
-
-    ReturnType process(const ArgType& buffer) {
+    void process(const std::weak_ptr<const MultiBuffer<float>>& buffer) {
         decltype(auto) lockedBuffer = buffer.lock();
+
         if (!lockedBuffer) {
             return;
         }

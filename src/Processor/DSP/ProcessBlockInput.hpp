@@ -4,31 +4,23 @@
 
 #pragma once
 
-#include "../Models/AudioProcessorModel.hpp"
+#include <utility>
+
 #include "../Models/BufferModel.hpp"
 
 class ProcessBlockInput {
 public:
-    using ArgType = juce::AudioBuffer<float>;
+    explicit ProcessBlockInput(std::weak_ptr<MultiBuffer<float>> buffer) : buffer {std::move(buffer)} {}
 
-    PrepareToPlayParameter prepare(const PrepareToPlayParameter& parameter) {
-        std::lock_guard<std::mutex> lock {mutex};
+    std::weak_ptr<const MultiBuffer<float>> process(const juce::AudioBuffer<float>& audio_buffer) {
+        decltype(auto) lockedBuffer = buffer.lock();
 
-        buffer = std::make_shared<MultiBuffer<float>>(
-            MultiBuffer<float>{{2,
-                                mk2::container::fixed_array<float>(
-                                    static_cast<size_t>(parameter.samplesPerBlock),
-                                    0.f)}});
-
-        return parameter;
-    }
-
-    std::weak_ptr<const MultiBuffer<float>> process(ArgType& audio_buffer) {
-        decltype(auto) lock = std::unique_lock<std::mutex>(mutex, std::try_to_lock);
-
-        if (!lock) {
-            return {};
+        if (!lockedBuffer) {
+            return buffer;
         }
+
+        assert(audio_buffer.getNumChannels() == lockedBuffer->buffer.size());
+        assert(audio_buffer.getNumSamples() == lockedBuffer->buffer[0].size());
 
         const size_t channels = audio_buffer.getNumChannels();
         for (size_t channel = 0; channel < channels; ++channel) {
@@ -36,13 +28,12 @@ public:
             const size_t samples = audio_buffer.getNumSamples();
 
             for (size_t sample = 0; sample < samples; ++sample) {
-                buffer->buffer[channel][sample] = pointer[sample];
+                lockedBuffer->buffer[channel][sample] = pointer[sample];
             }
         }
         return buffer;
     }
 
 private:
-    std::mutex mutex;
-    std::shared_ptr<MultiBuffer<float>> buffer;
+    std::weak_ptr<MultiBuffer<float>> buffer;
 };

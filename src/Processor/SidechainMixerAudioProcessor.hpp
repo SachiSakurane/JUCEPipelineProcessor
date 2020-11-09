@@ -11,9 +11,7 @@
 #pragma once
 
 #include "AudioProcessorExtensions/Processor.hpp"
-#include "DSP/ProcessBlockInput.hpp"
-#include "DSP/ProcessBlockOutput.hpp"
-#include "DSP/PassBlock.hpp"
+#include "Models/BufferModel.hpp"
 
 //==============================================================================
 class SidechainMixerAudioProcessor : public AudioProcessorExtensions::Processor<> {
@@ -25,8 +23,8 @@ private:
     void releaseResources() final;
     void processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages) final;
 
-    ProcessBlockInput input, sidechainInput;
-    PassBlock pass;
+
+    std::shared_ptr<MultiBuffer<float>> sharedBuffer;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SidechainMixerAudioProcessor)
 };

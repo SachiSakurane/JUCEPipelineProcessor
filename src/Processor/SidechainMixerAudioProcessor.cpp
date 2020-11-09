@@ -5,7 +5,10 @@
 #include "SidechainMixerAudioProcessor.hpp"
 
 #include "Constants.hpp"
-#include "DSP/Connect.hpp"
+#include "DSP/ProcessableHelper.hpp"
+#include "DSP/ProcessBlockInput.hpp"
+#include "DSP/ProcessBlockOutput.hpp"
+#include "DSP/PassBlock.hpp"
 
 using namespace AudioProcessorExtensions;
 
@@ -114,7 +117,11 @@ SidechainMixerAudioProcessor::SidechainMixerAudioProcessor() :
 }
 
 void SidechainMixerAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock) {
-
+    sharedBuffer = std::make_shared<MultiBuffer<float>>(
+        MultiBuffer<float>{
+            {2,
+             mk2::container::fixed_array<float>(static_cast<size_t>(samplesPerBlock),0.f)}
+        });
 }
 
 void SidechainMixerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
@@ -133,30 +140,8 @@ void SidechainMixerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffe
         buffer.clear (i, 0, buffer.getNumSamples());
 
     decltype(auto) ioBus = getBusBuffer (buffer, true, 0);
-    decltype(auto) sidechainBus = getBusBuffer (buffer, true, 1);
-
-    decltype(auto) busR = getBusBuffer (buffer, true, 0) | sidechainInput;
-    // std::apply([this](const auto& x) { sidechainInput.process(x); }, std::make_tuple(getBusBuffer (buffer, true, 0)));
-
-    decltype(auto) x = ProcessableBinder {sidechainInput, getBusBuffer (buffer, true, 0)};
-    // std::__1::__bind<
-    // std::__1::weak_ptr<const MultiBuffer<float>>
-    // (ProcessBlockInput::*)(const juce::AudioBuffer<float> &), ProcessBlockInput *>
-    // busR.process();
-
-    decltype(auto) busL = ioBus | sidechainInput;
-
-    decltype(auto) busOutR = ioBus | ProcessBlockOutput(ioBus);
-    decltype(auto) outBus = ProcessBlockOutput(ioBus);
-    decltype(auto) busOutL = ioBus | outBus;
-
-    decltype(auto) busesR = ioBus | PassBlock() | outBus;
-    decltype(auto) pass = PassBlock();
-    decltype(auto) busesL = ioBus | pass | outBus;
-
-    // decltype(auto) sidechainMix = mix(sidechainInput(sidechainBus) | pass);
-    // decltype(auto) pipeline = stereoInput(ioBus) | sidechainMix | stereoOutput(ioBus);
-    // pipeline.process();
+    decltype(auto) pipeline = ioBus | ProcessBlockInput{sharedBuffer} | PassBlock{} | ProcessBlockOutput{ioBus};
+    pipeline.process();
 }
 
 void SidechainMixerAudioProcessor::releaseResources() {
