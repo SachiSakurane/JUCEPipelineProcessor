@@ -9,7 +9,7 @@ on:
 jobs:
   release-linux:
     env:
-      REPOSITORY_NAME: SanityController
+      REPOSITORY_NAME: SidechainMixer
       BUILD_DIRECTORY: ninja-build
     runs-on: ubuntu-latest
     steps:

@@ -9,7 +9,7 @@ on:
 jobs:
   release-windows:
     env:
-      REPOSITORY_NAME: SanityController
+      REPOSITORY_NAME: SidechainMixer
       BUILD_DIRECTORY: cmake-build
     runs-on: windows-latest
     steps:

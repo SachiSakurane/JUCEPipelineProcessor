@@ -9,7 +9,7 @@ on:
 jobs:
   release-osx:
     env:
-      REPOSITORY_NAME: SanityController
+      REPOSITORY_NAME: SidechainMixer
       BUILD_DIRECTORY: ninja-build
     runs-on: macOS-latest
     steps:
