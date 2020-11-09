@@ -12,6 +12,7 @@
 
 #include "AudioProcessorExtensions/Processor.hpp"
 #include "DSP/ProcessBlockInput.hpp"
+#include "DSP/ProcessBlockOutput.hpp"
 #include "DSP/PassBlock.hpp"
 
 //==============================================================================

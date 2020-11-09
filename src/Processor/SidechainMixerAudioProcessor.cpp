@@ -135,9 +135,10 @@ void SidechainMixerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffe
     decltype(auto) ioBus = getBusBuffer (buffer, true, 0);
     decltype(auto) sidechainBus = getBusBuffer (buffer, true, 1);
 
-    decltype(auto) pr = getBusBuffer (buffer, true, 0) | sidechainInput;
-    decltype(auto) pl = ioBus | sidechainInput;
+    decltype(auto) busR = getBusBuffer (buffer, true, 0) | sidechainInput;
+    decltype(auto) busL = ioBus | sidechainInput;
 
+    decltype(auto) busOut = ioBus | ProcessBlockOutput(ioBus);
     // decltype(auto) sidechainMix = mix(sidechainInput(sidechainBus) | pass);
     // decltype(auto) pipeline = stereoInput(ioBus) | sidechainMix | stereoOutput(ioBus);
     // pipeline.process();

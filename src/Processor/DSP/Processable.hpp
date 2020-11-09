@@ -9,30 +9,26 @@
 
 template <class ProcessorType>
 concept Processable = requires (ProcessorType& processor) {
-    typename ProcessorType::ReturnType;
     processor.process();
 };
 
 template <class Type, class... Args>
 class ProcessableBinder {
 public:
-    using ReturnType = typename Type::ReturnType;
-
-    explicit ProcessableBinder(Type& processable, Args&&... args) :
-        parent {processable},
+    explicit ProcessableBinder(Type&& processable, Args&&... args) :
+        parent {std::forward<Type>(processable)},
         tuple {std::forward<Args>(args)...} {}
 
     decltype(auto) process() {
         return std::apply([this](Args&&...args){
-            return parent.process(std::forward<Args>(args)...);
+            return std::forward<Type>(parent).process(std::forward<Args>(args)...);
         }, tuple);
     }
 
 private:
-    Type& parent;
+    Type&& parent;
     std::tuple<Args...> tuple;
-
 };
 
 template <class Type, class... Args>
-ProcessableBinder(Type&, Args&&...) -> ProcessableBinder<Type, Args...>;
+ProcessableBinder(Type&&, Args&&...) -> ProcessableBinder<Type, Args...>;

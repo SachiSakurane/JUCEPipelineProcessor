@@ -7,7 +7,6 @@
 #include "../Models/AudioProcessorModel.hpp"
 #include "../Models/BufferModel.hpp"
 
-// connectable
 class ProcessBlockInput {
 public:
     using ArgType = juce::AudioBuffer<float>;
