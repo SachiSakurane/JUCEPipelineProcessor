@@ -4,7 +4,8 @@
 ```C++
 void SidechainMixerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& ) {
     decltype(auto) ioBus = getBusBuffer (buffer, true, 0);
-    decltype(auto) pipeline = ioBus | ProcessBlockInput{sharedBuffer} | PassBlock{} | ProcessBlockOutput{ioBus};
+    decltype(auto) pipeline = 
+        ioBus | ProcessBlockInput{sharedBuffer} | PassBlock{} | ProcessBlockOutput{ioBus};
     pipeline.process();
 }
 ```
