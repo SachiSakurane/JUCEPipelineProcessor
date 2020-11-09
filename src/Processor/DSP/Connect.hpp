@@ -39,7 +39,7 @@ inline decltype(auto) operator | (ProcessableType&& right, ConnectableType&& lef
     return Connection{std::forward<ProcessableType>(right), std::forward<ConnectableType>(left)};
 }*/
 
-template <class Type, Connectable ConnectableType>
-inline decltype(auto) operator | (Type&& right, ConnectableType& left) {
-    return ProcessableBinder{left, std::forward<Type>(right)};
+template <class Type, class ConnectableType>
+inline decltype(auto) operator | (Type&& right, ConnectableType&& left) {
+    return ProcessableBinder{std::forward<ConnectableType>(left), std::forward<Type>(right)};
 }
