@@ -5,13 +5,7 @@
 #pragma once
 
 #include "Processable.hpp"
-
-template <class ProcessorType>
-concept Connectable = requires (ProcessorType& processor) {
-    typename ProcessorType::ArgType;
-    typename ProcessorType::ReturnType;
-    processor.process(std::declval<typename ProcessorType::ArgType>());
-};
+#include "Connectable.hpp"
 
 template <Processable InProcessableType, Connectable OutProcessableType>
 class Connection {
@@ -41,5 +35,5 @@ inline decltype(auto) operator | (ProcessableType&& right, ConnectableType&& lef
 
 template <class Type, class ConnectableType>
 inline decltype(auto) operator | (Type&& right, ConnectableType&& left) {
-    return ProcessableBinder{std::forward<ConnectableType>(left), std::forward<Type>(right)};
+    return ProcessableBinder {std::forward<ConnectableType>(left), std::forward<Type>(right)};
 }

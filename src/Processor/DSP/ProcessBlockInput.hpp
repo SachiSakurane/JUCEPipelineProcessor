@@ -10,7 +10,6 @@
 class ProcessBlockInput {
 public:
     using ArgType = juce::AudioBuffer<float>;
-    using ReturnType = std::weak_ptr<const MultiBuffer<float>>;
 
     PrepareToPlayParameter prepare(const PrepareToPlayParameter& parameter) {
         std::lock_guard<std::mutex> lock {mutex};
@@ -24,7 +23,7 @@ public:
         return parameter;
     }
 
-    ReturnType process(const ArgType& audio_buffer) {
+    std::weak_ptr<const MultiBuffer<float>> process(ArgType& audio_buffer) {
         decltype(auto) lock = std::unique_lock<std::mutex>(mutex, std::try_to_lock);
 
         if (!lock) {
