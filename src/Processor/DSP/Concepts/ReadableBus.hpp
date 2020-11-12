@@ -4,9 +4,10 @@
 
 #pragma once
 
-#include "Bus.hpp"
+#include "BaseBus.hpp"
 
 template <class ReadableBusType>
-concept ReadableBus = requires Bus<ReadableBusType> && (ReadableBusType& bus) {
-    //
+concept ReadableBus = BaseBus<ReadableBusType> && requires (const ReadableBusType& bus) {
+    typename ReadableBusType::SampleType;
+    {bus.getReadPointer()} -> owle::convertible_to<const typename ReadableBusType::SampleType*>;
 };

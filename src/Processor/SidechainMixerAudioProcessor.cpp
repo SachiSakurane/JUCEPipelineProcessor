@@ -5,10 +5,6 @@
 #include "SidechainMixerAudioProcessor.hpp"
 
 #include "Constants.hpp"
-#include "DSP/ProcessableHelper.hpp"
-#include "DSP/ProcessBlockInput.hpp"
-#include "DSP/ProcessBlockOutput.hpp"
-#include "DSP/PassBlock.hpp"
 
 using namespace AudioProcessorExtensions;
 
@@ -140,7 +136,7 @@ void SidechainMixerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffe
         buffer.clear (i, 0, buffer.getNumSamples());
 
     decltype(auto) ioBus = getBusBuffer (buffer, true, 0);
-    decltype(auto) pipeline = ioBus |  PassBlock{};
+    // decltype(auto) pipeline = ioBus |  PassBlock{};
     // pipeline.process();
 }
 
