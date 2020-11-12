@@ -140,8 +140,8 @@ void SidechainMixerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffe
         buffer.clear (i, 0, buffer.getNumSamples());
 
     decltype(auto) ioBus = getBusBuffer (buffer, true, 0);
-    decltype(auto) pipeline = ioBus | ProcessBlockInput{sharedBuffer} | PassBlock{} | ProcessBlockOutput{ioBus};
-    pipeline.process();
+    decltype(auto) pipeline = ioBus |  PassBlock{};
+    // pipeline.process();
 }
 
 void SidechainMixerAudioProcessor::releaseResources() {

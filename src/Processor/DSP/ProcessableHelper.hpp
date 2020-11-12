@@ -7,8 +7,9 @@
 #include <tuple>
 #include <utility>
 
-#include "Connectable.hpp"
-#include "Processable.hpp"
+#include "Concepts/Connectable.hpp"
+#include "Concepts/Processable.hpp"
+#include "Concepts/ReadableBus.hpp"
 
 template <class ConnectionType, class... Args>
 class ProcessableBinder {
