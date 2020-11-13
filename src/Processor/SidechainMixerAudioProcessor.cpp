@@ -3,8 +3,8 @@
 //
 
 #include "SidechainMixerAudioProcessor.hpp"
-
 #include "Constants.hpp"
+#include "DSP/Invert.hpp"
 
 using namespace AudioProcessorExtensions;
 
@@ -136,6 +136,9 @@ void SidechainMixerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffe
         buffer.clear (i, 0, buffer.getNumSamples());
 
     decltype(auto) ioBus = getBusBuffer (buffer, true, 0);
+    decltype(auto) inv = Invert{};
+    inv.process(ioBus);
+    Invert{}.process(ioBus);
     // decltype(auto) pipeline = ioBus |  PassBlock{};
     // pipeline.process();
 }

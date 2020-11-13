@@ -4,7 +4,10 @@
 
 #pragma once
 
+#include "BaseBus.hpp"
+
 template <class WritableBusType>
-concept WritableBus = requires (WritableBusType& bus) {
-    //
+concept WritableBus = BaseBus<WritableBusType> && requires (WritableBusType& bus) {
+    typename WritableBusType::SampleType;
+    {bus.getWritePointer(std::declval<int>())} -> owle::convertible_to<typename WritableBusType::SampleType*>;
 };
