@@ -4,7 +4,10 @@
 
 #pragma once
 
+#include <cassert>
 #include <utility>
+#include <juce_audio_basics/juce_audio_basics.h>
+
 
 #include "../Models/BufferModel.hpp"
 

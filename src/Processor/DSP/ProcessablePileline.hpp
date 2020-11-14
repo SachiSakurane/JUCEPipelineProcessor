@@ -7,27 +7,26 @@
 #include <tuple>
 #include <utility>
 
-#include "Connectable.hpp"
-#include "Processable.hpp"
+#include "Concepts/Connectable.hpp"
+#include "Concepts/Processable.hpp"
+#include "Concepts/ReadableBus.hpp"
 
-template <class ConnectionType, class... Args>
+template <class ConnectionType, class UnaryArgType>
 class ProcessableBinder {
 public:
-    explicit ProcessableBinder(ConnectionType&& connection, Args&&... args) :
+    explicit ProcessableBinder(ConnectionType&& connection, UnaryArgType arg) :
         connection {std::forward<ConnectionType>(connection)},
-        tuple {std::forward_as_tuple(std::forward<Args>(args)...)} {
+        arg {std::forward<UnaryArgType>(arg)} {
     }
 
     decltype(auto) process() {
-        return std::apply(&std::remove_cvref_t<ConnectionType>::process,
-                          std::tuple_cat(
-                              std::forward_as_tuple(std::forward<ConnectionType>(connection)),
-                              tuple));
+        return std::forward<ConnectionType>(connection).process(
+            std::forward<UnaryArgType>(arg));
     }
 
 private:
     ConnectionType&& connection;
-    std::tuple<Args...> tuple;
+    UnaryArgType&& arg;
 
 };
 
@@ -50,8 +49,8 @@ private:
 
 };
 
-template <class ConnectionType, class... Args> requires ArgsConnectable<ConnectionType, Args...>
-ProcessableBinder(ConnectionType&&, Args&&...) -> ProcessableBinder<ConnectionType, Args...>;
+template <class ConnectionType, class UnaryArgType> requires ArgsConnectable<ConnectionType, UnaryArgType>
+ProcessableBinder(ConnectionType&&, UnaryArgType&&) -> ProcessableBinder<ConnectionType, UnaryArgType>;
 
 template <class ConnectionType, Processable ProcessableType> requires ProcessConnectable<ConnectionType, ProcessableType>
 ProcessableBinder(ConnectionType&&, ProcessableType&&) -> ProcessableBinder<ConnectionType, ProcessableType>;
