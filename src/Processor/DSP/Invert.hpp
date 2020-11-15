@@ -8,6 +8,7 @@
 
 #include "Concepts/ReadableBus.hpp"
 #include "Concepts/WritableBus.hpp"
+#include "Utility.hpp"
 
 template <class = void>
 class Invert {
@@ -30,10 +31,15 @@ class Invert<BufferType> {
 public:
     explicit Invert(BufferType&& buffer) : buffer {std::forward<BufferType>(buffer)} {}
 
-    template <ReadableBus BusType>
+    template <ReadableBus BusType, bool IsAssertionBypass = true>
     BufferType&& process(const BusType& bus) {
-        assert(bus.getNumChannels() == buffer.getNumChannels());
-        assert(bus.getNumSamples() == buffer.getNumSamples());
+        if constexpr (IsAssertionBypass) {
+            if (!owle::isEqualitySize(bus, buffer)) {
+                return std::forward<BufferType>(buffer);
+            }
+        } else {
+            assert(owle::isEqualitySize(bus, buffer));
+        }
         for (size_t channel = 0; channel < bus.getNumChannels(); ++channel) {
             for (size_t sample = 0; sample < bus.getNumSamples(); ++sample) {
                 buffer.getWritePointer(channel)[sample] = bus.getReadPointer(channel)[sample];

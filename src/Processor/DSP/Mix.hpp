@@ -5,6 +5,7 @@
 #pragma once
 
 #include "Concepts/WritableBus.hpp"
+#include "Utility.hpp"
 
 template <ReadableBus BufferType>
 class Mix {
@@ -15,6 +16,9 @@ public:
 
     template <class BusType> requires ReadableBus<BusType> && WritableBus<BusType>
     BusType&& process(BusType&& bus) {
+        if (!owle::isEqualitySize(bus, wet)) {
+            return std::forward<BusType>(bus);
+        }
         for (size_t channel = 0; channel < bus.getNumChannels(); ++channel) {
             for (size_t sample = 0; sample < bus.getNumSamples(); ++sample) {
                 bus.getWritePointer(channel)[sample] = std::lerp(
