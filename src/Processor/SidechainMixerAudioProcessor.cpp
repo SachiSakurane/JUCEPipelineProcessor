@@ -5,6 +5,7 @@
 #include "SidechainMixerAudioProcessor.hpp"
 #include "Constants.hpp"
 #include "DSP/Invert.hpp"
+#include "DSP/Mix.hpp"
 #include "DSP/ProcessablePileline.hpp"
 
 using namespace AudioProcessorExtensions;
@@ -135,16 +136,23 @@ void SidechainMixerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffe
     // this code if your algorithm always overwrites all the output channels.
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
-
+/*
     decltype(auto) ioBus = getBusBuffer (buffer, true, 0);
     decltype(auto) inv = Invert{};
-    inv.process(ioBus);
+    inv.process(getBusBuffer (buffer, true, 0));
     Invert{}.process(ioBus);
 
-    decltype(auto) pipelineL = ProcessableBinder{Invert{}, ioBus};
+    decltype(auto) pipelineL = ProcessableBinder{Invert{}, getBusBuffer (buffer, true, 0)};
     pipelineL.process();
-    decltype(auto) pipelineR = ioBus | Invert{};
+    decltype(auto) pipelineR = getBusBuffer (buffer, true, 0) | Invert{};
     pipelineR.process();
+*/
+
+    decltype(auto) ioBus = getBusBuffer (buffer, true, 0);
+    decltype(auto) sidechainBus = getBusBuffer (buffer, true, 1);
+    decltype(auto) pipeline = ioBus | Invert{} | Mix { sidechainBus, 0.5 };
+    pipeline.process();
+
 }
 
 void SidechainMixerAudioProcessor::releaseResources() {

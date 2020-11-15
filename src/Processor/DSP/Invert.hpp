@@ -15,13 +15,13 @@ public:
     Invert() = default;
 
     template <class BusType> requires ReadableBus<BusType> && WritableBus<BusType>
-    BusType& process(BusType& bus) {
+    BusType&& process(BusType&& bus) {
         for (size_t channel = 0; channel < bus.getNumChannels(); ++channel) {
             for (size_t sample = 0; sample < bus.getNumSamples(); ++sample) {
                 bus.getWritePointer(channel)[sample] = bus.getReadPointer(channel)[sample];
             }
         }
-        return bus;
+        return std::forward<BusType>(bus);
     }
 };
 
