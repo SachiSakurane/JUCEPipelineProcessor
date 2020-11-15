@@ -8,6 +8,7 @@
 
 template <class WritableBusType>
 concept WritableBus = BaseBus<WritableBusType> && requires (WritableBusType& bus) {
-    typename WritableBusType::SampleType;
-    {bus.getWritePointer(std::declval<int>())} -> owle::convertible_to<typename WritableBusType::SampleType*>;
+    typename std::remove_cvref_t<WritableBusType>::SampleType;
+    {bus.getWritePointer(std::declval<int>())} ->
+        owle::convertible_to<typename std::remove_cvref_t<WritableBusType>::SampleType*>;
 };

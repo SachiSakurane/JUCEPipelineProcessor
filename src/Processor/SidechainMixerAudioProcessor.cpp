@@ -5,6 +5,7 @@
 #include "SidechainMixerAudioProcessor.hpp"
 #include "Constants.hpp"
 #include "DSP/Invert.hpp"
+#include "DSP/Mix.hpp"
 #include "DSP/ProcessablePileline.hpp"
 
 using namespace AudioProcessorExtensions;
@@ -137,14 +138,10 @@ void SidechainMixerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffe
         buffer.clear (i, 0, buffer.getNumSamples());
 
     decltype(auto) ioBus = getBusBuffer (buffer, true, 0);
-    decltype(auto) inv = Invert{};
-    inv.process(ioBus);
-    Invert{}.process(ioBus);
+    decltype(auto) sidechainBus = getBusBuffer (buffer, true, 1);
 
-    decltype(auto) pipelineL = ProcessableBinder{Invert{}, ioBus};
-    pipelineL.process();
-    decltype(auto) pipelineR = ioBus | Invert{};
-    pipelineR.process();
+    ( ioBus | Mix { sidechainBus, 0.5 } ).process();
+
 }
 
 void SidechainMixerAudioProcessor::releaseResources() {
