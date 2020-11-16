@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "Concepts/ReadableBus.hpp"
 #include "Concepts/WritableBus.hpp"
 #include "Utility.hpp"
 

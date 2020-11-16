@@ -6,6 +6,7 @@
 #include "Constants.hpp"
 #include "DSP/Invert.hpp"
 #include "DSP/Mix.hpp"
+#include "DSP/ConnectablePipeline.hpp"
 #include "DSP/ProcessablePileline.hpp"
 
 using namespace AudioProcessorExtensions;
@@ -115,11 +116,6 @@ SidechainMixerAudioProcessor::SidechainMixerAudioProcessor() :
 }
 
 void SidechainMixerAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock) {
-    sharedBuffer = std::make_shared<MultiBuffer<float>>(
-        MultiBuffer<float>{
-            {2,
-             mk2::container::fixed_array<float>(static_cast<size_t>(samplesPerBlock),0.f)}
-        });
 }
 
 void SidechainMixerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
@@ -141,6 +137,9 @@ void SidechainMixerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffe
     decltype(auto) sidechainBus = getBusBuffer (buffer, true, 1);
 
     ( ioBus | Mix { sidechainBus, 0.5 } ).process();
+
+    decltype(auto) pipeline = Invert{} | Mix { sidechainBus, 0.5 };
+    pipeline.process(ioBus);
 
 }
 

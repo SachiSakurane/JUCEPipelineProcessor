@@ -6,12 +6,15 @@
 
 #include <utility>
 
-template <class ConnectableType, class... Args>
+template <class ConnectableType, class ArgumentType>
 concept ArgsConnectable = requires (ConnectableType &connectable) {
-    connectable.process(std::declval<Args>()...);
+    connectable.process(std::declval<ArgumentType>());
 };
 
 template <class ConnectionType, class ProcessableType>
 concept ProcessConnectable = requires (ConnectionType& connectable, ProcessableType& processable) {
     connectable.process(processable.process());
 };
+
+template <class ConnectionType, class Type>
+concept Connectable = ArgsConnectable<ConnectionType, Type> || ProcessConnectable<ConnectionType, Type>;
