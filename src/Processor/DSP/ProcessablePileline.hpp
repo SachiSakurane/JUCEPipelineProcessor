@@ -55,14 +55,17 @@ ProcessableBinder(ConnectionType&&, UnaryArgType&&) -> ProcessableBinder<Connect
 template <class ConnectionType, Processable ProcessableType> requires ProcessConnectable<ConnectionType, ProcessableType>
 ProcessableBinder(ConnectionType&&, ProcessableType&&) -> ProcessableBinder<ConnectionType, ProcessableType>;
 
-// left.process(right)と等価
+// connection.process(value)と等価
 template <class Type, class ConnectionType> requires ArgsConnectable<ConnectionType, Type>
-inline decltype(auto) operator | (Type&& right, ConnectionType&& left) {
-    return ProcessableBinder {std::forward<ConnectionType>(left), std::forward<Type>(right)};
+inline decltype(auto) operator | (Type&& value, ConnectionType&& connection) {
+    return ProcessableBinder {std::forward<ConnectionType>(connection), std::forward<Type>(value)};
 }
 
-// left.process(right.process())と等価
-template <Processable ProcessableType, class ConnectionType> requires ProcessConnectable<ConnectionType, ProcessableType>
-inline decltype(auto) operator | (ProcessableType&& right, ConnectionType&& left) {
-    return ProcessableBinder {std::forward<ConnectionType>(left), std::forward<ProcessableType>(right)};
+// connection.process(processable.process())と等価
+template <Processable ProcessableType, class ConnectionType>
+    requires ProcessConnectable<ConnectionType, ProcessableType>
+inline decltype(auto) operator | (
+    ProcessableType&& processable,
+    ConnectionType&& connection) {
+    return ProcessableBinder {std::forward<ConnectionType>(connection), std::forward<ProcessableType>(processable)};
 }
